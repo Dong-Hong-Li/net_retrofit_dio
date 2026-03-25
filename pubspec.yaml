@@ -1,6 +1,18 @@
 name: net_retrofit_dio
-description: Retrofit-style HTTP client for Dart using Dio; declare APIs with annotations and generate implementations via build_runner. 
-version: 0.1.0
+description: >-
+  Declarative HTTP for Flutter/Dio: annotate APIs, generate implementations with
+  build_runner.
+
+homepage: https://github.com/Dong-Hong-Li/net_retrofit_dio
+repository: https://github.com/Dong-Hong-Li/net_retrofit_dio
+issue_tracker: https://github.com/Dong-Hong-Li/net_retrofit_dio/issues
+
+topics:
+  - flutter
+  - networking
+  - retrofit
+  - code-generation
+  - dio
 
 environment:
   sdk: ">=3.5.0 <4.0.0"

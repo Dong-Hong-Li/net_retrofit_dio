@@ -1,33 +1,93 @@
 # net_retrofit_dio
 
-基于 [Dio](https://pub.dev/packages/dio) 的 Retrofit 风格声明式 HTTP 客户端：**注解 + `build_runner` 生成实现**。
+[![GitHub](https://img.shields.io/badge/repo-Dong--Hong--Li%2Fnet__retrofit__dio-181717?logo=github)](https://github.com/Dong-Hong-Li/net_retrofit_dio)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-当前为**工程壳子**：已接通 `source_gen` / `build.yaml`，生成器仅输出占位注释，后续再补全方法与 Dio 调用生成逻辑。
+用 **注解描述接口**，用 **build_runner** 生成 `*Impl`，底层走 [Dio](https://pub.dev/packages/dio)。适合想把 HTTP 声明从业务里抽出去、又希望生成代码尽量直白的项目。
 
-## 布局
+---
 
-| 路径 | 说明 |
-|------|------|
-| `lib/net_retrofit_dio.dart` | 对外导出 |
-| `lib/src/annotations.dart` | `@NetRetrofitDioApi` 等注解（会扩展） |
-| `lib/src/generate/` | Builder 与代码生成器 |
-| `build.yaml` | 注册 builder，产物为 `.g.dart`（经 combining） |
+**English (short):** Annotation-driven HTTP client for Flutter: abstract API classes → generated implementations calling `NetRequest` + Dio. Multi-base-URL lanes via `NetRequest.open` / `@NetApi(client: …)`.
 
-## 下游使用（预览）
+---
 
-在依赖此包的项目中：
+## 依赖
 
 ```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  dio: ^5.0.0
+  net_retrofit_dio: ^0.1.1   # 或 git / path
+
 dev_dependencies:
   build_runner: ^2.4.0
-  net_retrofit_dio:
-    path: ../net_retrofit_dio  # 或 git / pub 版本
 ```
 
 ```bash
 dart run build_runner build --delete-conflicting-outputs
 ```
 
+入口：`import 'package:net_retrofit_dio/net_retrofit_dio.dart';`
+
+## 一次初始化
+
+```dart
+NetRequest.prime(
+  const NetOptions(
+    baseUrl: 'https://api.example.com',
+    connectTimeout: Duration(seconds: 30),
+    receiveTimeout: Duration(seconds: 30),
+  ),
+);
+// 其它 Host / 超时（可选）
+NetRequest.open('upload', const NetOptions(baseUrl: 'https://upload.example.com'));
+```
+
+`INetClient` 与 `NetOptions` 绑定在同一条线路里；具名线路在 `@NetApi(client: 'upload')` 里与 `open` / `plug` 的 id 对应。
+
+## 声明与调用
+
+```dart
+part 'user_api.g.dart';
+
+@NetApi()
+abstract class UserApi {
+  @Get('/user/info')
+  Future<UserModel?> getUserInfo();
+
+  @Post('/login')
+  Future<AuthModel?> login(@Body() LoginRequest body);
+}
+```
+
+```dart
+final api = UserApiImpl();
+await api.getUserInfo();
+```
+
+更完整的组合（query、path、header、multipart、流式等）见 [`example/`](example/)。
+
+## 注解速览
+
+| 标注 | 作用 |
+|------|------|
+| `@NetApi()` / `@NetApi(client: 'id')` | 抽象类；`client` 对应 `NetRequest.open` 的线路 id |
+| `@Get` `@Post` `@Put` `@Delete` | 路径；可带 `contentType:`（如 `ContentType.formData`） |
+| `@Body()` | 体；`Map` 直发，其它类型用 `toJson()` / `?.toJson()` |
+| `@Query()` / `@QueryKey('k')` | 整表 query / 单个参数 |
+| `@Path('id')` | 替换路径里的 `{id}` |
+| `@Header('Name')` | 单个请求头 |
+| `@Part('name')` | multipart 字段（常配合 formData）；`File` 会转成 `MultipartFile` |
+| `@DataPath('key')` | 从 `response.data['key']` 再解析返回值 |
+| `@StreamResponse()` | 流式响应（生成侧按行 `Stream<String>`） |
+| `[CallOptions? options]` | 单次 `cancelToken` / `clientKey`；若方法已有命名参数则用 `{CallOptions? options}` |
+
+`Future<List<T>>` 且 `T` 有 `fromJson` 时，生成器会按元素映射列表。
+
+细节源码：`lib/src/generate/annotations.dart`、`lib/src/network/net_request.dart`。
+
+
 ## License
 
-待定（与主仓库策略一致即可）。
+[MIT](LICENSE).

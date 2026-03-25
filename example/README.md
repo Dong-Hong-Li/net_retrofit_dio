@@ -1,16 +1,13 @@
-# net_retrofit_dio_example
+# 示例
 
-A new Flutter project.
+演示根线路 + `upload` 线路、`build_runner` 生成的多种请求（含流式与 multipart），对接 `https://httpbin.org`。
 
-## Getting Started
+```bash
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs   # 修改过 lib/server/*.dart 时
+flutter run
+```
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter test
+```
