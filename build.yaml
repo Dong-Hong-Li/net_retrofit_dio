@@ -1,0 +1,12 @@
+# Code generation for abstract API classes annotated with @NetRetrofitDioApi.
+# Consumers run:
+#   dart run build_runner build --delete-conflicting-outputs
+
+builders:
+  net_retrofit_dio:
+    import: "package:net_retrofit_dio/src/generate/build.dart"
+    builder_factories: ["netRetrofitDioBuilder"]
+    build_extensions: {".dart": [".net_retrofit_dio.g.part"]}
+    applies_builders: ["source_gen|combining_builder"]
+    build_to: cache
+    auto_apply: dependents
