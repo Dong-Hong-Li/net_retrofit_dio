@@ -13,8 +13,11 @@ import 'net_options.dart';
 /// "blueprint" map — configuration and transport are always bound together.
 ///
 /// - [plug] / [open] / [cut] are the only mutators.
-/// - Non-[defaultLaneId]: first write only; change ⇒ [cut] first.
-/// - [defaultLaneId]: [plug] / [open] may be replaced in place.
+/// - Non-[defaultLaneId]: first [plug] only for a **new** [id]. A later [open] with
+///   the same [id] calls [INetClient.applyNetOptions] (in place). To swap the
+///   whole client instance, [cut] then [plug].
+/// - [defaultLaneId]: [plug] replaces the client; [open] reconfigures via
+///   [applyNetOptions].
 ///
 /// **Tests**: [injectDio] wraps a raw [Dio] in [DioNetClient] for the root.
 class NetRequest {
@@ -53,8 +56,20 @@ class NetRequest {
     _clients[id] = client;
   }
 
-  /// Sugar: creates a [DioNetClient] from [spec] and registers it for [id].
+  /// Registers a [DioNetClient] for [id], or **reconfigures** an existing client.
+  ///
+  /// - No client for [id]: `plug(id, DioNetClient(spec))`.
+  /// - Client already registered: [INetClient.applyNetOptions]\(spec\) — custom
+  ///   implementations decide how to apply [spec] (e.g. update internal [Dio]).
   static void open(String id, NetOptions spec) {
+    if (id.isEmpty) {
+      throw ArgumentError.value(id, 'id', 'must not be empty');
+    }
+    final existing = _clients[id];
+    if (existing != null) {
+      existing.applyNetOptions(spec);
+      return;
+    }
     plug(id, DioNetClient(spec));
   }
 

@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2025-03-26
+
+### Breaking changes
+
+- **`INetClient`**: must implement **`applyNetOptions(NetOptions spec)`**.  
+  Used when **`NetRequest.open(id, spec)`** is called while lane `id` already has a client (same instance is reconfigured instead of throwing).
+
+### Migration
+
+1. On every **`implements INetClient`** type, add:
+   ```dart
+   @override
+   void applyNetOptions(NetOptions spec) {
+     // Update backing config and transport (e.g. _options = spec; dio.options.baseUrl = …).
+   }
+   ```
+2. **`DioNetClient`** already implements it (updates `BaseOptions`; does not rebuild the interceptor list from `NetOptions.interceptors` — use **`cut` + `open` / `plug`** to change that).
+3. To **replace** the whole client for a lane (not just update config), **`NetRequest.cut(id)`** then **`plug` / `open`** as before.
+
+### Changed
+
+- **`NetRequest.open`**: if `id` is already registered, always calls **`existing.applyNetOptions(spec)`** (no longer limited to `DioNetClient`).
+
 ## [0.1.2] - 2025-03-25
 
 ### Fixed

@@ -16,6 +16,11 @@ abstract class INetClient {
   /// Network configuration this client was built from.
   NetOptions get options;
 
+  /// When [NetRequest.open] is called for a lane that already has a client,
+  /// applies [spec] — update what [options] reports and any transport
+  /// (e.g. [DioNetClient] updates [BaseOptions] on the same [Dio]).
+  void applyNetOptions(NetOptions spec);
+
   /// Single entry for all HTTP calls; [responseType] controls buffering vs stream.
   Future<Response<T>> request<T>({
     required String url,
@@ -45,7 +50,7 @@ class DioNetClient implements INetClient {
 
   DioNetClient._(this._options, this._dio);
 
-  final NetOptions _options;
+  NetOptions _options;
   final Dio _dio;
 
   @override
@@ -53,6 +58,19 @@ class DioNetClient implements INetClient {
 
   /// Underlying [Dio] (e.g. for tests or extra interceptors).
   Dio get dio => _dio;
+
+  /// Updates [options] and the underlying [Dio] [BaseOptions] (base URL, timeouts)
+  /// to match [spec]. Does **not** rebuild the interceptor chain — if you change
+  /// [NetOptions.interceptors], [cut] the lane and [open] / [plug] again, or mutate
+  /// [dio.interceptors] yourself.
+  @override
+  void applyNetOptions(NetOptions spec) {
+    _options = spec;
+    _dio.options.baseUrl = spec.baseUrl;
+    _dio.options.connectTimeout = spec.connectTimeout;
+    _dio.options.receiveTimeout = spec.receiveTimeout;
+    _dio.options.sendTimeout = spec.sendTimeout;
+  }
 
   /// Builds a [Dio] from [options], adding [HttpLoggingInterceptor] and any
   /// interceptors declared in [NetOptions.interceptors].

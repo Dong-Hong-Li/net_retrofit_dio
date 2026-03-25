@@ -18,7 +18,7 @@ dependencies:
   flutter:
     sdk: flutter
   dio: ^5.0.0
-  net_retrofit_dio: ^0.1.2   # 或 git / path
+  net_retrofit_dio: ^0.2.0   # 或 git / path
 
 dev_dependencies:
   build_runner: ^2.4.0
