@@ -133,11 +133,11 @@ class _ExamplesListPageState extends State<ExamplesListPage> {
                 '@Post @Put @Delete、@Body（Map/模型）、@Path、@DataPath(json)',
             children: [
               _btn(
-                  'create(@Body Map)',
+                  'create(@Body Map) -> void',
                   () => _run('create', () async {
-                        final r = await _articleApi
+                        await _articleApi
                             .create({'title': 't', 'content': 'c'});
-                        _setResult(r != null ? 'Article: ${r.title}' : 'null');
+                        _setResult('create() ok (void)');
                       })),
               _btn(
                   'createWithModel',

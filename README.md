@@ -7,7 +7,15 @@
 
 ---
 
-**English (short):** Annotation-driven HTTP client for Flutter: abstract API classes → generated implementations calling `NetRequest` + Dio. Multi-base-URL lanes via `NetRequest.open` / `@NetApi(client: …)`.
+**English (short):** Annotation-driven HTTP client for Flutter: abstract API classes → generated implementations calling `NetRequest` + Dio. Multi-base-URL lanes via `NetRequest.open` / `@NetApi(client: …)`. **Not** the [`retrofit`](https://pub.dev/packages/retrofit) pub package — separate project, Dio-first.
+
+---
+
+## 和 etrofit.dar 是什么关系？
+
+- **零依赖**：不依赖 [`retrofit`](https://pub.dev/packages/retrofit)、[`retrofit_generator`](https://pub.dev/packages/retrofit_generator) 等包，也不是对方 fork。
+- **取向不同**：社区里常用的 [trevorwang/retrofit.dart](https://github.com/trevorwang/retrofit.dart) 功能与集成面很广（独立运行时包 + 生成器、多种 parser/adapter 等）。**本库**刻意做成 **贴近 Dio 的薄层**：注解只负责摊平到 `NetRequest` / `INetClient`，线路与配置用 `NetRequest.prime`、`open`、`plug` 和 `NetOptions` 直接表达，少一层「再包一整个 RestClient 工厂」的心智负担。
+- **怎么选**：要与其生态、特性矩阵完全对齐时，用对方即可；要 **依赖面小、和 Dio 的用法一致** 时，可以看本库。
 
 ---
 
@@ -17,7 +25,7 @@
 dependencies:
   flutter:
     sdk: flutter
-  dio: ^5.0.0
+  dio: ^5.2.1
   net_retrofit_dio: ^0.2.0   # 或 git / path
 
 dev_dependencies:

@@ -10,8 +10,7 @@ part 'article_api.g.dart';
 @NetApi()
 abstract class ArticleApi {
   @Post('/post')
-  @DataPath('json')
-  Future<ArticleModel?> create(@Body() Map<String, dynamic> body);
+  Future<void> create(@Body() Map<String, dynamic> body);
 
   @Post('/post')
   @DataPath('json')

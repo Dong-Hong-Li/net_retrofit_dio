@@ -224,6 +224,12 @@ class NetRetrofitGenerator extends GeneratorForAnnotation<NetApi> {
     return uri.contains('dio');
   }
 
+  /// True for `void` / `Future<void>` / `Future<void>?`.
+  bool _returnsVoid(DartType type) {
+    final t = _unwrapFutureType(type);
+    return t.getDisplayString().replaceAll('?', '') == 'void';
+  }
+
   bool _hasFromJsonFactory(InterfaceType type) {
     final element = type.element;
     final hasNamedCtor = element.constructors.any((c) => c.name == 'fromJson');
@@ -254,9 +260,12 @@ class NetRetrofitGenerator extends GeneratorForAnnotation<NetApi> {
     return 'return ($sourceExpr as List).map((e) => $itemTypeName.fromJson(e as Map<String, dynamic>)).toList();';
   }
 
-  /// Builds `return ...;` from Dio [response].
-  String _buildReturnStatement(
+  /// Builds the trailing `return ...;` from Dio [response]. Returns `null`
+  /// when the method declares `void`/`Future<void>`: the call is awaited but
+  /// nothing is parsed and no `return` is emitted.
+  String? _buildReturnStatement(
       MethodElement method, MethodGeneratorConfig config) {
+    if (_returnsVoid(method.returnType)) return null;
     if (_returnsDioResponse(method.returnType)) {
       return 'return response;';
     }
@@ -279,7 +288,10 @@ class NetRetrofitGenerator extends GeneratorForAnnotation<NetApi> {
     final optName = _getCallOptionsParameterName(method);
     final hasOpt = _hasCallOptionsParameter(method);
 
-    buffer.writeln('    final response = await NetRequest.request<dynamic>(');
+    final discard = _returnsVoid(method.returnType);
+    buffer.writeln(discard
+        ? '    await NetRequest.request<dynamic>('
+        : '    final response = await NetRequest.request<dynamic>(');
     buffer.writeln('      ${_buildUrl(config)},');
     buffer.writeln('      method: ${config.method},');
     final q = _buildQueryParameters(config);
@@ -333,7 +345,8 @@ class NetRetrofitGenerator extends GeneratorForAnnotation<NetApi> {
       buffer.writeln(
           '    return stream.transform(utf8.decoder).transform(const LineSplitter());');
     } else {
-      buffer.writeln('    ${_buildReturnStatement(method, config)}');
+      final ret = _buildReturnStatement(method, config);
+      if (ret != null) buffer.writeln('    $ret');
     }
     buffer.writeln('  }');
     return buffer.toString();

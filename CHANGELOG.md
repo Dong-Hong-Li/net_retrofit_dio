@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-05-19
+
+### Fixed
+
+- **Generator**: methods declared as **`Future<void>`** (or `void`) now generate a plain `await NetRequest.request<dynamic>(...)` with no `return` and no unused local — previously emitted invalid `return void.fromJson(...)` (FormatterException at build time). `@DataPath` on `void` methods is ignored.
+
+### Changed
+
+- Example `ArticleApi.create` switched to `Future<void>` to demonstrate fire-and-forget POST.
+
 ## [0.2.0] - 2025-03-26
 
 ### Breaking changes

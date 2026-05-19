@@ -8,14 +8,12 @@ part of 'article_api.dart';
 
 class ArticleApiImpl implements ArticleApi {
   @override
-  Future<ArticleModel?> create(Map<String, dynamic> body) async {
-    final response = await NetRequest.request<dynamic>(
+  Future<void> create(Map<String, dynamic> body) async {
+    await NetRequest.request<dynamic>(
       url: '${NetRequest.resolveBaseUrl()}/post',
       method: HttpMethod.post,
       body: body,
     );
-    return ArticleModel.fromJson((response.data as Map<String, dynamic>)["json"]
-        as Map<String, dynamic>);
   }
 
   @override
