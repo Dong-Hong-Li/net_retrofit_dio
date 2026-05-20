@@ -11,7 +11,7 @@
 
 ---
 
-## 和 etrofit.dar 是什么关系？
+## 和 retrofit.dar 是什么关系？
 
 - **零依赖**：不依赖 [`retrofit`](https://pub.dev/packages/retrofit)、[`retrofit_generator`](https://pub.dev/packages/retrofit_generator) 等包，也不是对方 fork。
 - **取向不同**：社区里常用的 [trevorwang/retrofit.dart](https://github.com/trevorwang/retrofit.dart) 功能与集成面很广（独立运行时包 + 生成器、多种 parser/adapter 等）。**本库**刻意做成 **贴近 Dio 的薄层**：注解只负责摊平到 `NetRequest` / `INetClient`，线路与配置用 `NetRequest.prime`、`open`、`plug` 和 `NetOptions` 直接表达，少一层「再包一整个 RestClient 工厂」的心智负担。
