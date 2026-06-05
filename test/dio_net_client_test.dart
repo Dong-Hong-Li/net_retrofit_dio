@@ -41,7 +41,7 @@ void main() {
     });
 
     test('PATCH dispatches dio.patch with body', () async {
-      await client.request(
+      await client.request<dynamic>(
         url: '/patch',
         method: HttpMethod.patch,
         body: {'title': 'patched'},
@@ -53,7 +53,7 @@ void main() {
     });
 
     test('HEAD dispatches dio.head without requiring a body', () async {
-      final response = await client.request(
+      final response = await client.request<dynamic>(
         url: '/anything/1',
         method: HttpMethod.head,
         queryParameters: {'check': '1'},
@@ -74,7 +74,11 @@ void main() {
         (HttpMethod.delete, 'DELETE'),
       ];
       for (final (method, verb) in cases) {
-        await client.request(url: '/x', method: method, body: {'k': 'v'});
+        await client.request<dynamic>(
+          url: '/x',
+          method: method,
+          body: {'k': 'v'},
+        );
         expect(capture.last?.method, verb, reason: '$method');
       }
     });
