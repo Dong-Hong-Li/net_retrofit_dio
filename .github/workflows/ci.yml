@@ -26,7 +26,7 @@ jobs:
         run: flutter analyze
 
       - name: Test root
-        run: dart test
+        run: flutter test
 
   example:
     name: Example analyze + test
