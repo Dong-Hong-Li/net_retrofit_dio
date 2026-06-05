@@ -62,11 +62,43 @@ class ArticleApiImpl implements ArticleApi {
   }
 
   @override
+  Future<ArticleModel?> partialUpdate(Map<String, dynamic> body) async {
+    final response = await NetRequest.request<dynamic>(
+      url: '${NetRequest.resolveBaseUrl()}/patch',
+      method: HttpMethod.patch,
+      body: body,
+    );
+    return ArticleModel.fromJson((response.data as Map<String, dynamic>)["json"]
+        as Map<String, dynamic>);
+  }
+
+  @override
+  Future<ArticleModel?> partialUpdateWithModel(
+      UpdateArticleRequest body) async {
+    final response = await NetRequest.request<dynamic>(
+      url: '${NetRequest.resolveBaseUrl()}/patch',
+      method: HttpMethod.patch,
+      body: body.toJson(),
+    );
+    return ArticleModel.fromJson((response.data as Map<String, dynamic>)["json"]
+        as Map<String, dynamic>);
+  }
+
+  @override
   Future<Map<String, dynamic>?> delete(String id) async {
     final response = await NetRequest.request<dynamic>(
       url: '${NetRequest.resolveBaseUrl()}/anything/$id',
       method: HttpMethod.delete,
     );
     return response.data as Map<String, dynamic>;
+  }
+
+  @override
+  Future<Response<dynamic>> headById(String id) async {
+    final response = await NetRequest.request<dynamic>(
+      url: '${NetRequest.resolveBaseUrl()}/anything/$id',
+      method: HttpMethod.head,
+    );
+    return response;
   }
 }

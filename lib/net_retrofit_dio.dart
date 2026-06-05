@@ -3,7 +3,7 @@
 /// Usage:
 /// 1. [NetRequest.prime](NetOptions); optional [NetRequest.plug] / [NetRequest.open] per lane id.
 /// 2. Annotate abstract classes with [NetApi] and methods with
-///    [Get]/[Post]/[Put]/[Delete].
+///    [Get]/[Post]/[Put]/[Patch]/[Delete]/[Head].
 /// 3. Run build_runner to generate implementations (`*_impl.dart` or `.g.dart`).
 /// 4. Generated code calls [NetRequest.request] and maps [Response.data].
 library;

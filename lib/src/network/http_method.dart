@@ -3,7 +3,9 @@ enum HttpMethod {
   get,
   post,
   put,
-  delete;
+  patch,
+  delete,
+  head;
 
   String get string {
     switch (this) {
@@ -13,8 +15,12 @@ enum HttpMethod {
         return 'POST';
       case HttpMethod.put:
         return 'PUT';
+      case HttpMethod.patch:
+        return 'PATCH';
       case HttpMethod.delete:
         return 'DELETE';
+      case HttpMethod.head:
+        return 'HEAD';
     }
   }
 }

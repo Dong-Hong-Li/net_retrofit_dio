@@ -32,8 +32,8 @@ class NetApi {
 /// **Annotation mapping** (see `lib/src/generate/annotations.dart`):
 /// | Interface parameter | Annotation / convention |
 /// |------------|-------------|
-/// | [url] | path from @Get/@Post/@Put/@Delete, concatenated with baseUrl |
-/// | [method] | @Get -> get, @Post -> post, @Put -> put, @Delete -> delete |
+/// | [url] | path from @Get/@Post/@Put/@Patch/@Delete/@Head, concatenated with baseUrl |
+/// | [method] | @Get -> get, @Post -> post, @Put -> put, @Patch -> patch, @Delete -> delete, @Head -> head |
 /// | [queryParameters] | full @Query() map, merged with @QueryKey(name) entries |
 /// | [body] | @Body() argument (toJson or Map) |
 /// | [contentType] | from annotations such as @Get(..., contentType: ...) |
@@ -75,9 +75,19 @@ class Put extends HttpMethodAnnotation {
   const Put(super.path, {super.contentType});
 }
 
+/// PATCH request (partial update).
+class Patch extends HttpMethodAnnotation {
+  const Patch(super.path, {super.contentType});
+}
+
 /// DELETE request.
 class Delete extends HttpMethodAnnotation {
   const Delete(super.path, {super.contentType});
+}
+
+/// HEAD request (response headers only; body is typically omitted).
+class Head extends HttpMethodAnnotation {
+  const Head(super.path, {super.contentType});
 }
 
 // ========================== Method-level: response parsing ==========================

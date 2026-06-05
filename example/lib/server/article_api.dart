@@ -1,4 +1,4 @@
-// 示例 3：POST/PUT/DELETE、@Body（Map / 模型）、@Path。
+// 示例 3：POST/PUT/PATCH/DELETE/HEAD、@Body（Map / 模型）、@Path。
 // httpbin 回显在 `json` 字段，用 @DataPath('json') 解析。
 
 import 'package:net_retrofit_dio/net_retrofit_dio.dart';
@@ -29,7 +29,20 @@ abstract class ArticleApi {
   @DataPath('json')
   Future<ArticleModel?> updateWithModel(@Body() UpdateArticleRequest body);
 
+  @Patch('/patch')
+  @DataPath('json')
+  Future<ArticleModel?> partialUpdate(@Body() Map<String, dynamic> body);
+
+  @Patch('/patch')
+  @DataPath('json')
+  Future<ArticleModel?> partialUpdateWithModel(
+      @Body() UpdateArticleRequest body);
+
   /// httpbin 返回 JSON Map，不用 bool 强转。
   @Delete('/anything/{id}')
   Future<Map<String, dynamic>?> delete(@Path('id') String id);
+
+  /// HEAD：无响应体，用 [Response] 读状态码与头。
+  @Head('/anything/{id}')
+  Future<Response<dynamic>> headById(@Path('id') String id);
 }

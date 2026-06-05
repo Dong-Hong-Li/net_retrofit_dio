@@ -81,8 +81,7 @@ class _ExamplesListPageState extends State<ExamplesListPage> {
               _btn(
                   'saveArchives(@Body)',
                   () => _run('saveArchives', () async {
-                        final m =
-                            await _demoApi.saveArchives({'key': 'demo'});
+                        final m = await _demoApi.saveArchives({'key': 'demo'});
                         _setResult('saveArchives: ${m != null}');
                       })),
               ListTile(
@@ -130,7 +129,7 @@ class _ExamplesListPageState extends State<ExamplesListPage> {
           _card(
             title: '示例 3：Article API',
             subtitle:
-                '@Post @Put @Delete、@Body（Map/模型）、@Path、@DataPath(json)',
+                '@Post @Put @Patch @Delete @Head、@Body（Map/模型）、@Path、@DataPath(json)',
             children: [
               _btn(
                   'create(@Body Map) -> void',
@@ -170,10 +169,33 @@ class _ExamplesListPageState extends State<ExamplesListPage> {
                         _setResult(r != null ? 'ok' : 'null');
                       })),
               _btn(
+                  'partialUpdate(@Body Map)',
+                  () => _run('partialUpdate', () async {
+                        final r = await _articleApi
+                            .partialUpdate({'id': '1', 'title': 'patched'});
+                        _setResult(
+                            r != null ? 'PATCH: ${r.title ?? r.id}' : 'null');
+                      })),
+              _btn(
+                  'partialUpdateWithModel',
+                  () => _run('partialUpdateWithModel', () async {
+                        final r = await _articleApi.partialUpdateWithModel(
+                            UpdateArticleRequest(
+                                id: '1', title: 'patched', content: 'c'));
+                        _setResult(r != null ? 'PATCH ok' : 'null');
+                      })),
+              _btn(
                   'delete(id)',
                   () => _run('delete', () async {
                         final m = await _articleApi.delete('1');
                         _setResult('delete: ${m != null}');
+                      })),
+              _btn(
+                  'headById(id) -> Response',
+                  () => _run('headById', () async {
+                        final r = await _articleApi.headById('1');
+                        _setResult(
+                            'HEAD ${r.statusCode} content-type=${r.headers.value('content-type')}');
                       })),
             ],
           ),
@@ -204,8 +226,8 @@ class _ExamplesListPageState extends State<ExamplesListPage> {
               _btn(
                   "postNested({'value': 'demo'})",
                   () => _run('postNested', () async {
-                        final r = await _nestedApi
-                            .postNested({'value': 'demo'});
+                        final r =
+                            await _nestedApi.postNested({'value': 'demo'});
                         _setResult(r != null ? 'Nested: ${r.value}' : 'null');
                       })),
             ],

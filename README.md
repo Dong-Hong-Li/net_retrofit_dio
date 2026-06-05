@@ -81,7 +81,7 @@ await api.getUserInfo();
 | 标注 | 作用 |
 |------|------|
 | `@NetApi()` / `@NetApi(client: 'id')` | 抽象类；`client` 对应 `NetRequest.open` 的线路 id |
-| `@Get` `@Post` `@Put` `@Delete` | 路径；可带 `contentType:`（如 `ContentType.formData`） |
+| `@Get` `@Post` `@Put` `@Patch` `@Delete` `@Head` | 路径；可带 `contentType:`（如 `ContentType.formData`） |
 | `@Body()` | 体；`Map` 直发，其它类型用 `toJson()` / `?.toJson()` |
 | `@Query()` / `@QueryKey('k')` | 整表 query / 单个参数 |
 | `@Path('id')` | 替换路径里的 `{id}` |

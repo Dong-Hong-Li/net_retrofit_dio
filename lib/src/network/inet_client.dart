@@ -93,12 +93,11 @@ class DioNetClient implements INetClient {
   static Map<String, dynamic> _extra(
     Map<String, dynamic>? extra,
     bool enableLogging,
-  ) =>
-      {
-        'startTime': DateTime.now().millisecondsSinceEpoch,
-        'enableLogging': enableLogging,
-        ...?extra,
-      };
+  ) => {
+    'startTime': DateTime.now().millisecondsSinceEpoch,
+    'enableLogging': enableLogging,
+    ...?extra,
+  };
 
   static Options _buildRequestOptions({
     required ContentType contentType,
@@ -147,8 +146,24 @@ class DioNetClient implements INetClient {
           options: options,
           cancelToken: cancelToken,
         );
+      case HttpMethod.patch:
+        return _dio.patch<T>(
+          url,
+          data: body,
+          queryParameters: q.isNotEmpty ? q : null,
+          options: options,
+          cancelToken: cancelToken,
+        );
       case HttpMethod.delete:
         return _dio.delete<T>(
+          url,
+          data: body,
+          queryParameters: q.isNotEmpty ? q : null,
+          options: options,
+          cancelToken: cancelToken,
+        );
+      case HttpMethod.head:
+        return _dio.head<T>(
           url,
           data: body,
           queryParameters: q.isNotEmpty ? q : null,

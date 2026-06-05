@@ -7,7 +7,7 @@ import 'parser_expression.dart';
 import 'package:source_gen/source_gen.dart';
 
 /// Names of @Get/@Post/@Put/@Delete annotations for HTTP-method detection.
-const _httpMethodNames = {'Get', 'Post', 'Put', 'Delete'};
+const _httpMethodNames = {'Get', 'Post', 'Put', 'Patch', 'Delete', 'Head'};
 
 /// Whether the method has any HTTP method annotation.
 bool _hasHttpMethodAnnotation(MethodElement method) {
@@ -37,10 +37,12 @@ class NetRetrofitGenerator extends GeneratorForAnnotation<NetApi> {
     // Only process abstract methods annotated with an HTTP method.
     final abstractMethodsWithConfig = classElement.methods
         .where((MethodElement m) => m.isAbstract && _hasHttpMethodAnnotation(m))
-        .map((MethodElement m) => (
-              m,
-              MethodGeneratorConfig.generateMethodGeneratorConfig(m, annotation)
-            ))
+        .map(
+          (MethodElement m) => (
+            m,
+            MethodGeneratorConfig.generateMethodGeneratorConfig(m, annotation),
+          ),
+        )
         .toList();
 
     if (abstractMethodsWithConfig.isEmpty) {
@@ -49,7 +51,8 @@ class NetRetrofitGenerator extends GeneratorForAnnotation<NetApi> {
 
     final buffer = StringBuffer();
     buffer.writeln(
-        'class ${classElement.name}Impl implements ${classElement.name} {');
+      'class ${classElement.name}Impl implements ${classElement.name} {',
+    );
     for (final (method, config) in abstractMethodsWithConfig) {
       buffer.write(_generateMethodImplementation(method, config));
     }
@@ -121,10 +124,12 @@ class NetRetrofitGenerator extends GeneratorForAnnotation<NetApi> {
           break;
         }
       }
-      final isMapType = bodyParamType != null &&
+      final isMapType =
+          bodyParamType != null &&
           bodyParamType is InterfaceType &&
           bodyParamType.element.name == 'Map';
-      final isNullable = bodyParamType != null &&
+      final isNullable =
+          bodyParamType != null &&
           bodyParamType.getDisplayString().endsWith('?');
       final String bodyValue;
       if (isMapType) {
@@ -135,15 +140,18 @@ class NetRetrofitGenerator extends GeneratorForAnnotation<NetApi> {
       return 'body: $bodyValue';
     }
     if (config.partParams.isNotEmpty) {
-      final entries = config.partParams.entries.map((e) {
-        final paramName = e.value;
-        final isFile = method.formalParameters
-            .where((p) => (p.name ?? p.displayName) == paramName)
-            .any((p) => p.type.getDisplayString().contains('File'));
-        final value =
-            isFile ? 'MultipartFile.fromFileSync($paramName.path)' : paramName;
-        return "'${e.key}': $value";
-      }).join(', ');
+      final entries = config.partParams.entries
+          .map((e) {
+            final paramName = e.value;
+            final isFile = method.formalParameters
+                .where((p) => (p.name ?? p.displayName) == paramName)
+                .any((p) => p.type.getDisplayString().contains('File'));
+            final value = isFile
+                ? 'MultipartFile.fromFileSync($paramName.path)'
+                : paramName;
+            return "'${e.key}': $value";
+          })
+          .join(', ');
       return 'body: FormData.fromMap({$entries})';
     }
     return null;
@@ -172,9 +180,11 @@ class NetRetrofitGenerator extends GeneratorForAnnotation<NetApi> {
 
   /// Whether method includes `CancelToken? cancelToken` parameter.
   bool _hasCancelTokenParameter(MethodElement method) {
-    return method.formalParameters.any((p) =>
-        (p.name ?? p.displayName) == 'cancelToken' &&
-        p.type.getDisplayString().contains('CancelToken'));
+    return method.formalParameters.any(
+      (p) =>
+          (p.name ?? p.displayName) == 'cancelToken' &&
+          p.type.getDisplayString().contains('CancelToken'),
+    );
   }
 
   /// Whether method includes [CallOptions? options]: optional positional [] or named {options}.
@@ -264,7 +274,9 @@ class NetRetrofitGenerator extends GeneratorForAnnotation<NetApi> {
   /// when the method declares `void`/`Future<void>`: the call is awaited but
   /// nothing is parsed and no `return` is emitted.
   String? _buildReturnStatement(
-      MethodElement method, MethodGeneratorConfig config) {
+    MethodElement method,
+    MethodGeneratorConfig config,
+  ) {
     if (_returnsVoid(method.returnType)) return null;
     if (_returnsDioResponse(method.returnType)) {
       return 'return response;';
@@ -289,9 +301,11 @@ class NetRetrofitGenerator extends GeneratorForAnnotation<NetApi> {
     final hasOpt = _hasCallOptionsParameter(method);
 
     final discard = _returnsVoid(method.returnType);
-    buffer.writeln(discard
-        ? '    await NetRequest.request<dynamic>('
-        : '    final response = await NetRequest.request<dynamic>(');
+    buffer.writeln(
+      discard
+          ? '    await NetRequest.request<dynamic>('
+          : '    final response = await NetRequest.request<dynamic>(',
+    );
     buffer.writeln('      ${_buildUrl(config)},');
     buffer.writeln('      method: ${config.method},');
     final q = _buildQueryParameters(config);
@@ -307,17 +321,21 @@ class NetRetrofitGenerator extends GeneratorForAnnotation<NetApi> {
     }
     if (hasOpt && optName != null) {
       final ckVal = _buildClientKeyValue(config);
-      buffer.writeln(ckVal != null
-          ? "      clientKey: $optName?.clientKey ?? $ckVal,"
-          : '      clientKey: $optName?.clientKey,');
+      buffer.writeln(
+        ckVal != null
+            ? "      clientKey: $optName?.clientKey ?? $ckVal,"
+            : '      clientKey: $optName?.clientKey,',
+      );
     } else {
       final clientKey = _buildClientKey(config);
       if (clientKey != null) buffer.writeln('      $clientKey,');
     }
     if (hasOpt && optName != null) {
-      buffer.writeln(_hasCancelTokenParameter(method)
-          ? '      cancelToken: $optName?.cancelToken ?? cancelToken,'
-          : '      cancelToken: $optName?.cancelToken,');
+      buffer.writeln(
+        _hasCancelTokenParameter(method)
+            ? '      cancelToken: $optName?.cancelToken ?? cancelToken,'
+            : '      cancelToken: $optName?.cancelToken,',
+      );
     } else if (_hasCancelTokenParameter(method)) {
       buffer.writeln('      cancelToken: cancelToken,');
     }
@@ -326,7 +344,9 @@ class NetRetrofitGenerator extends GeneratorForAnnotation<NetApi> {
 
   /// Generates method implementation code.
   String _generateMethodImplementation(
-      MethodElement method, MethodGeneratorConfig config) {
+    MethodElement method,
+    MethodGeneratorConfig config,
+  ) {
     final returnTypeStr = method.returnType.getDisplayString();
     final paramsStr = _methodParameters(method);
     final buffer = StringBuffer();
@@ -343,7 +363,8 @@ class NetRetrofitGenerator extends GeneratorForAnnotation<NetApi> {
       buffer.writeln('    final stream = response.data?.stream;');
       buffer.writeln('    if (stream == null) return Stream.empty();');
       buffer.writeln(
-          '    return stream.transform(utf8.decoder).transform(const LineSplitter());');
+        '    return stream.transform(utf8.decoder).transform(const LineSplitter());',
+      );
     } else {
       final ret = _buildReturnStatement(method, config);
       if (ret != null) buffer.writeln('    $ret');

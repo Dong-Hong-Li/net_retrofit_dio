@@ -95,7 +95,14 @@ class MethodGeneratorConfig {
   /// Parsing config used to generate return statements from [Response.data].
   final ParserGeneratorConfig parserConfig;
 
-  static const _httpMethodNames = {'Get', 'Post', 'Put', 'Delete'};
+  static const _httpMethodNames = {
+    'Get',
+    'Post',
+    'Put',
+    'Patch',
+    'Delete',
+    'Head',
+  };
 
   /// Builds a normalized type name from [InterfaceType].element.name and
   /// typeArguments to avoid spacing artifacts from [getDisplayString].
@@ -122,8 +129,9 @@ class MethodGeneratorConfig {
     ConstantReader netApiAnnotation,
   ) {
     final clientKey = netApiAnnotation.peek('client')?.stringValue;
-    final effectiveClientKey =
-        (clientKey != null && clientKey.isNotEmpty) ? clientKey : null;
+    final effectiveClientKey = (clientKey != null && clientKey.isNotEmpty)
+        ? clientKey
+        : null;
 
     String path = '';
     HttpMethod httpMethod = HttpMethod.get;
@@ -156,8 +164,14 @@ class MethodGeneratorConfig {
           case 'Put':
             httpMethod = HttpMethod.put;
             break;
+          case 'Patch':
+            httpMethod = HttpMethod.patch;
+            break;
           case 'Delete':
             httpMethod = HttpMethod.delete;
+            break;
+          case 'Head':
+            httpMethod = HttpMethod.head;
             break;
         }
       } else if (name == 'StreamResponse') {
@@ -233,10 +247,7 @@ class MethodGeneratorConfig {
 
 /// Parser generation config from method-level [DataPath] and method return type.
 class ParserGeneratorConfig {
-  const ParserGeneratorConfig({
-    this.dataPath,
-    required this.returnTypeName,
-  });
+  const ParserGeneratorConfig({this.dataPath, required this.returnTypeName});
 
   /// Parse from `response.data` map key. Null means whole [Response.data].
   final String? dataPath;
