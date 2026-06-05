@@ -2,7 +2,7 @@ name: net_retrofit_dio
 description: >-
   Declarative HTTP for Flutter/Dio: annotate APIs, generate implementations with
   build_runner.
-version: 0.2.1
+version: 0.2.2
 repository: https://github.com/Dong-Hong-Li/net_retrofit_dio
 homepage: https://github.com/Dong-Hong-Li/net_retrofit_dio
 issue_tracker: https://github.com/Dong-Hong-Li/net_retrofit_dio/issues
